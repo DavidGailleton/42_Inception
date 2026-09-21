@@ -1,0 +1,43 @@
+services:
+  mariadb:
+    build:
+      context: ./requirements/mariadb
+    environment:
+      MYSQL_DATABASE: "wp"
+      MYSQL_ROOT_PASSWORD: "test"
+      MYSQL_USER: "wp"
+      MYSQL_PASSWORD: "test"
+    volumes:
+      - db:/var/lib/mysql
+
+  wordpress:
+    build:
+      context: ./requirements/wordpress
+    depends_on:
+      - mariadb
+    ports:
+      - 9000:9000
+    volumes:
+      - wordpress_data:/var/www/wordpress
+
+  nginx:
+    build:
+      context: ./requirements/nginx
+    depends_on:
+      - wordpress
+    ports:
+      - 8000:80
+    volumes:
+      - wordpress_data:/var/www/wordpress
+
+  adminer:
+    image: adminer:latest
+    depends_on:
+      - mariadb
+    ports:
+      - 8080:8080
+
+
+volumes:
+  wordpress_data:
+  db:
